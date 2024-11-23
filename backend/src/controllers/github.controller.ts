@@ -65,12 +65,11 @@ class GitHubController {
    */
   async getAllBranches(req: Request, res: Response, next: NextFunction) {
     try {
-      const { repo } = req.body;
       const userId = req.user.id;
 
       const user = await userRepository.getUserById(userId);
 
-      if (!user?.owner || !repo || !user.githubApiKey) {
+      if (!user?.owner || !user?.repo || !user.githubApiKey) {
         res.status(400).json({
           success: false,
           message: 'Please specify "repo", ensure owner and API key are set.',
@@ -80,7 +79,7 @@ class GitHubController {
 
       const branches = await githubAdapter.fetchAllBranches(
         user.owner,
-        repo,
+        user.repo,
         user.githubApiKey
       );
 
