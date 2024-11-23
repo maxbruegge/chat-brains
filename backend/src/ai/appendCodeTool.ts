@@ -1,8 +1,7 @@
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { conversationRepository } from '../repositories/conversation.repository';
-import mongoose, { Types } from 'mongoose';
-import { IConversationFiles } from '../models/conversation';
+import { Types } from 'mongoose';
 
 const appendCodeSchema = z.object({
   changedFiles: z.array(
