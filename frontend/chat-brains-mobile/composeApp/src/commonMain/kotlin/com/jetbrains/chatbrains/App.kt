@@ -54,7 +54,10 @@ fun App(client: NetworkClient) {
             client = client,
             onNavigate = { currentScreen = Screen.ConversationScreen }
         )
-        is Screen.ConversationScreen -> Conversation(onNavigate = { currentScreen = Screen.LoginScreen })
+        is Screen.ConversationScreen -> Conversation(
+            client = client,
+            onNavigate = {  }
+        )
     }
 
 

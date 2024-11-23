@@ -19,6 +19,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import util.NetworkError
@@ -97,7 +98,7 @@ class NetworkClient(
         }
     }
 
-    suspend fun answer(filePath: String): Result<Unit, NetworkError> {
+    suspend fun answer(filePath: String): Result<String, NetworkError> {
 
         val response: HttpResponse;
         try {
@@ -110,7 +111,16 @@ class NetworkClient(
         }
 
         return when (response.status.value) {
-            in 200..299 -> Result.Success(Unit)
+            in 200..299 -> {
+                try {
+                    // Parse JSON and extract the "answer" property
+                    val responseBody = response.bodyAsText()
+                    val answerResponse = Json.decodeFromString<AnswerResponse>(responseBody)
+                    Result.Success(answerResponse.answer)
+                } catch (e: Exception) {
+                    Result.Error(NetworkError.UNKNOWN)
+                }
+            }
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)
             in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
