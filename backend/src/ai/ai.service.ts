@@ -8,6 +8,7 @@ import { getModal } from './chatModal';
 import { taskDecompositionTool } from './taskDecompositionTool';
 import { retrieverTool } from './retrieverTool';
 import { appendCodeTool } from './appendCodeTool';
+import { Types } from 'mongoose';
 
 class AiService {
   private messages: (HumanMessage | SystemMessage | ToolMessage | AIMessage)[] =
@@ -26,9 +27,17 @@ class AiService {
       ),
     ];
 
-  async runAI(message: string, isAI: boolean = false): Promise<any> {
+  async runAI({
+    userId,
+    message,
+    isAI = false,
+  }: {
+    userId: Types.ObjectId;
+    message: string;
+    isAI?: boolean;
+  }): Promise<any> {
     console.log('Run AI Pipeline');
-    debugger;
+    console.log('User ID: ', userId);
 
     if (isAI) {
       this.messages.push(new AIMessage(message));
@@ -36,10 +45,12 @@ class AiService {
       this.messages.push(new HumanMessage(message));
     }
 
+    const appendCode = appendCodeTool(userId);
+
     const modelWithTools = getModal().bindTools([
       retrieverTool,
       taskDecompositionTool,
-      appendCodeTool,
+      appendCode,
     ]);
 
     const toolsByName = {
@@ -64,7 +75,11 @@ class AiService {
     console.log('Messages: ', this.messages);
 
     if (result?.tool_calls?.length ?? 0 > 0) {
-      return this.runAI(result.content.toString(), true);
+      return this.runAI({
+        message: result.content.toString(),
+        userId,
+        isAI: true,
+      });
     } else {
       console.log(this.messages);
       return result;

@@ -12,14 +12,7 @@ class GitHubController {
     try {
       const { githubApiKey, owner, repo } = req.body;
 
-      if (!githubApiKey) {
-        res
-          .status(400)
-          .json({ success: false, message: 'API key is required.' });
-        return;
-      }
-      const user = await userRepository.getUserById(req.user.id);
-      if (!user?.githubApiKey || !user?.owner || !user?.repo) {
+      if (!githubApiKey || !owner || !repo) {
         res.status(400).json({
           success: false,
           message: 'Please specify "githubApiKey", "owner", and "repo".',
