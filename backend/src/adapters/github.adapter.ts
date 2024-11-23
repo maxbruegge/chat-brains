@@ -259,6 +259,51 @@ class GitHubAdapter {
       throw error;
     }
   }
+  /**
+   * Fetches all issues of a GitHub repository.
+   * @param owner - The repository owner (username or organization).
+   * @param repo - The repository name.
+   * @param token - The GitHub personal access token.
+   * @param state - The state of the issues to fetch ('open', 'closed', or 'all').
+   * @returns A list of issues.
+   */
+  async fetchAllIssues(
+    owner: string,
+    repo: string,
+    token: string,
+    state: 'open' | 'closed' | 'all' = 'open'
+  ) {
+    const url = `${GITHUB_API_URL}/repos/${owner}/${repo}/issues`;
+
+    try {
+      const response = await axios.get<any[]>(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+        params: {
+          state,
+        },
+      });
+
+      const resultIssues = response.data.map((issue, index) => ({
+        index,
+        title: issue.title,
+        body: issue.body,
+      }));
+
+      return resultIssues;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(
+          `GitHub API Error (${error.response?.status}): ${
+            error.response?.data?.message || error.message
+          }`
+        );
+      }
+      throw error;
+    }
+  }
 }
 
 export const githubAdapter = new GitHubAdapter();

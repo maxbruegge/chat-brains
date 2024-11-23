@@ -9,6 +9,7 @@ import { taskDecompositionTool } from './taskDecompositionTool';
 import { retrieverTool } from './retrieverTool';
 import { appendCodeTool } from './appendCodeTool';
 import { Types } from 'mongoose';
+import { issueRetrieverTool } from './issueRetrieverTool';
 
 class AiService {
   private messages: (HumanMessage | SystemMessage | ToolMessage | AIMessage)[] =
@@ -18,11 +19,14 @@ class AiService {
         The user does not see the code, and you should not say the full code, (only insert it into the tools) 
         but rather explain what you did sololy with the file and function names.
         Use the tools to get and write code. Speak to the user with just a few words, to get more information.
-        1. Your first step is to call the retriever and get relevant files for the query.
-        2. Call taskDecomposition to decompose the task into smaller subtasks.
-        3. Discuss the implementation for the 1. step with the user.
-        4. Call appendCode to save the code snippet for the step.
-        5. Repeat the process for the next steps.
+
+        Follow these steps:
+        1. Your first step is to call retrievIssue, and check if you find the one from the user.
+        2. Afterwards call the retriever and get relevant files for the query and issue.
+        3. Call taskDecomposition to decompose the task into smaller subtasks.
+        4. Discuss the implementation for the 1. step with the user.
+        5. Call appendCode to save the code snippet for the step.
+        6. Repeat the process for the next steps.
         `
       ),
     ];
@@ -36,9 +40,6 @@ class AiService {
     message: string;
     isAI?: boolean;
   }): Promise<any> {
-    console.log('Run AI Pipeline');
-    console.log('User ID: ', userId);
-
     if (isAI) {
       this.messages.push(new AIMessage(message));
     } else {
@@ -47,22 +48,24 @@ class AiService {
 
     const appendCode = appendCodeTool(userId);
     const retriever = retrieverTool(userId);
+    const issueRetriever = issueRetrieverTool(userId);
 
     const modelWithTools = getModal().bindTools([
       retriever,
       taskDecompositionTool,
       appendCode,
+      issueRetriever,
     ]);
 
     const toolsByName = {
       retriever: retrieverTool,
       taskDecomposition: taskDecompositionTool,
       appendCode: appendCode,
+      issueRetriever: issueRetrieverTool,
     };
 
     const result = await modelWithTools.invoke(this.messages);
 
-    console.log('Result: ', result);
 
     this.messages.push(result);
 
@@ -77,7 +80,6 @@ class AiService {
       this.messages.push(toolMessage);
     }
 
-    console.log('Messages: ', this.messages);
 
     if (result?.tool_calls?.length ?? 0 > 0) {
       return this.runAI({
@@ -86,7 +88,6 @@ class AiService {
         isAI: true,
       });
     } else {
-      console.log(this.messages);
       return result;
     }
   }

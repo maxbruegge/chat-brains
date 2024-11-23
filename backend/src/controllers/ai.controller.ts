@@ -69,9 +69,18 @@ class AiController {
         userId: req.user.id,
       });
 
+      const file = await generateAudio(result?.content.toString());
+
       res.status(200).json({
         success: true,
         answer: result?.content.toString(),
+        file: file,
+      });
+
+      res.status(200).json({
+        success: true,
+        answer: result?.content.toString(),
+        file,
       });
     } catch (error) {
       const axiosError = error as AxiosError;
@@ -109,7 +118,6 @@ class AiController {
           reject(err);
         })
         .on('end', () => {
-          console.log('FFmpeg conversion completed.');
           const wavBuffer = fs.readFileSync(outputFilePath);
           resolve(wavBuffer);
         })
@@ -126,11 +134,12 @@ class AiController {
         userId: req.user.id,
       });
 
-      await generateAudio(result?.content.toString());
+      const file = await generateAudio(result?.content.toString());
 
       res.status(200).json({
         success: true,
         answer: result?.content.toString(),
+        file: file,
       });
     } catch (error) {
       const axiosError = error as AxiosError;
@@ -144,10 +153,8 @@ class AiController {
   }
 }
 
-async function generateAudio(aiMessage: string) {
+async function generateAudio(aiMessage: string): Promise<string> {
   try {
-    console.log('Generating audio:', aiMessage);
-    console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
@@ -159,14 +166,17 @@ async function generateAudio(aiMessage: string) {
       speed: 1.3,
     });
 
+    // Convert the response to an ArrayBuffer
     const audioArrayBuffer = await response.arrayBuffer();
+
+    // Create a Buffer from the ArrayBuffer
     const audioBuffer = Buffer.from(audioArrayBuffer);
 
-    const audioFilePath = path.join('', 'output.mp3');
-    fs.writeFileSync(audioFilePath, audioBuffer);
+    // Convert the Buffer to a Base64-encoded string
+    const base64Audio = audioBuffer.toString('base64');
 
-    console.log('Audio file generated at:', audioFilePath);
-    return audioFilePath;
+    console.log('Base64 audio string generated.');
+    return base64Audio;
   } catch (error) {
     console.error('Error generating audio:', error);
     throw error;

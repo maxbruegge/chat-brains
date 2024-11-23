@@ -117,6 +117,43 @@ class GitHubController {
       next(error); // Pass errors to the global error handler
     }
   }
+
+  /**
+   * Fetches all issues for a repository.
+   */
+  async getAllIssues(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { repo, state } = req.body;
+      const userId = req.user.id;
+
+      const user = await userRepository.getUserById(userId);
+
+      if (!user?.owner || !repo || !user.githubApiKey) {
+        res.status(400).json({
+          success: false,
+          message: 'Please specify "repo", ensure owner and API key are set.',
+        });
+        return;
+      }
+
+      const issues = await githubAdapter.fetchAllIssues(
+        user.owner,
+        repo,
+        user.githubApiKey,
+        state || 'open'
+      );
+
+      const resultIssues = issues.map((issue, index) => ({
+        index,
+        title: issue.title,
+        body: issue.body,
+      }));
+
+      res.status(200).json({ success: true, issues: resultIssues });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const githubController = new GitHubController();
