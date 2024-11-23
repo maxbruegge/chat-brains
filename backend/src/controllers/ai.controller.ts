@@ -4,12 +4,13 @@ import axios, { AxiosError } from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { aiService } from '../ai/ai.service';
+import OpenAI from 'openai';
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 class AiController {
   async processAudio(req: Request, res: Response): Promise<void> {
-    if (!req.file) {
+    if (!req.body.file) {
       res
         .status(400)
         .json({ success: false, message: 'No audio file uploaded.' });
@@ -17,7 +18,9 @@ class AiController {
     }
 
     try {
-      const buffer = Buffer.from(req.file.buffer);
+      // Decode Base64 string into a buffer
+      const base64String = req.body.file; // Assuming the Base64 string is sent in `req.body.file`
+      const buffer = Buffer.from(base64String, 'base64');
 
       // Convert MP4 to WAV
       const audioBuffer = await aiController.convertMp4ToWav(buffer);
@@ -60,20 +63,22 @@ class AiController {
           .map((result: any) => result.alternatives?.[0]?.transcript)
           .join(' ') || 'No transcription available.';
 
+      // Process transcription with AI service
       const result = await aiService.runAI({
         message: transcription,
         userId: req.user.id,
       });
+
       res.status(200).json({
         success: true,
         answer: result?.content.toString(),
       });
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error('Error processing audio:', axiosError.message);
+      console.error('Error processing audio ):', axiosError.message);
       res.status(500).json({
         success: false,
-        message: 'Error processing audio.',
+        message: 'Error processing audio. ):',
         error: axiosError.message,
       });
     }
@@ -120,6 +125,9 @@ class AiController {
         message: message,
         userId: req.user.id,
       });
+
+      await generateAudio(result?.content.toString());
+
       res.status(200).json({
         success: true,
         answer: result?.content.toString(),
@@ -133,6 +141,35 @@ class AiController {
         error: axiosError.message,
       });
     }
+  }
+}
+
+async function generateAudio(aiMessage: string) {
+  try {
+    console.log('Generating audio:', aiMessage);
+    console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    const response = await openai.audio.speech.create({
+      model: 'tts-1',
+      input: aiMessage,
+      voice: 'alloy',
+      speed: 1.3,
+    });
+
+    const audioArrayBuffer = await response.arrayBuffer();
+    const audioBuffer = Buffer.from(audioArrayBuffer);
+
+    const audioFilePath = path.join('', 'output.mp3');
+    fs.writeFileSync(audioFilePath, audioBuffer);
+
+    console.log('Audio file generated at:', audioFilePath);
+    return audioFilePath;
+  } catch (error) {
+    console.error('Error generating audio:', error);
+    throw error;
   }
 }
 

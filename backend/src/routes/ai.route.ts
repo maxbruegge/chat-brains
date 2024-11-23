@@ -9,7 +9,6 @@ const router = Router();
 router.post(
   '/',
   authMiddleware,
-  uploadMiddleware.single('audio'),
   aiController.processAudio
 );
 router.post('/text', authMiddleware, aiController.processText);

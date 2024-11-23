@@ -1,8 +1,6 @@
 import { model, ObjectId, Schema } from 'mongoose';
 import { Document } from 'mongoose';
 
-
-
 export interface IConversation extends Document {
   userId: ObjectId;
   title: string;
