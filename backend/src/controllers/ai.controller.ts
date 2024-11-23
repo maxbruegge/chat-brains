@@ -9,7 +9,7 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 class AiController {
   async processAudio(req: Request, res: Response): Promise<void> {
-    if (!req.file) {
+    if (!req.body.file) {
       res
         .status(400)
         .json({ success: false, message: 'No audio file uploaded.' });
@@ -17,7 +17,9 @@ class AiController {
     }
 
     try {
-      const buffer = Buffer.from(req.file.buffer);
+      // Decode Base64 string into a buffer
+      const base64String = req.body.file; // Assuming the Base64 string is sent in `req.body.file`
+      const buffer = Buffer.from(base64String, 'base64');
 
       // Convert MP4 to WAV
       const audioBuffer = await aiController.convertMp4ToWav(buffer);
@@ -60,10 +62,12 @@ class AiController {
           .map((result: any) => result.alternatives?.[0]?.transcript)
           .join(' ') || 'No transcription available.';
 
+      // Process transcription with AI service
       const result = await aiService.runAI({
         message: transcription,
         userId: req.user.id,
       });
+
       res.status(200).json({
         success: true,
         answer: result?.content.toString(),
