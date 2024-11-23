@@ -1,6 +1,8 @@
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { conversationRepository } from '../repositories/conversation.repository';
+import mongoose, { Types } from 'mongoose';
+import { IConversationFiles } from '../models/conversation';
 
 const appendCodeSchema = z.object({
   changedFiles: z.array(
@@ -11,22 +13,30 @@ const appendCodeSchema = z.object({
   ),
 });
 
-export const appendCodeTool = tool(
-  async ({ changedFiles }) => {
-    console.log('Start: Append Code');
+export const appendCodeTool = (userId: Types.ObjectId) =>
+  tool(
+    async ({ changedFiles }) => {
+      console.log('Start: Append Code');
 
-    // TODO: @Maxi
-    try {
-      //   conversationRepository.addMessageToConversation(_, changedFiles);
-      //   return 'The code has been saved.';
-    } catch {
-      throw new Error('Changes could not be saved');
+      try {
+        const conversation =
+          await conversationRepository.getConversationsByUserId(userId);
+
+        conversationRepository.addMessageToConversation(
+          // @ts-ignore
+          conversation[0]._id,
+          changedFiles
+        );
+
+        return 'The code has been saved.';
+      } catch {
+        throw new Error('Changes could not be saved');
+      }
+    },
+    {
+      name: 'appendCode',
+      description:
+        'When you want to finalize a code snippet for a step call this tool.',
+      schema: appendCodeSchema,
     }
-  },
-  {
-    name: 'appendCode',
-    description:
-      'When you want to finalize a code snippet for a step call this tool.',
-    schema: appendCodeSchema,
-  }
-);
+  );
