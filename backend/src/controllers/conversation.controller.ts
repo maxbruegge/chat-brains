@@ -62,6 +62,6 @@ export const createConversation = async (
     const newConversation = await insertConversation({ title, userId });
     res.status(201).json({ success: true, data: newConversation });
   } catch (error) {
-    next(error); // Pass the error to the global error handler
+    next(error);
   }
 };
