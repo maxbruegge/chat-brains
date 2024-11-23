@@ -16,10 +16,12 @@ import platform.posix.memcpy
 
 import io.ktor.client.*
 import io.ktor.client.engine.darwin.*
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.InternalAPI
 import platform.Foundation.*
 import kotlinx.coroutines.*
@@ -31,7 +33,11 @@ import kotlinx.serialization.json.put
 @OptIn(InternalAPI::class)
 actual suspend fun uploadAudioFile(filePath: String, serverUrl: String, authorizationToken: String): HttpResponse {
     // Initialize Ktor client with Darwin engine for iOS
-    val client = HttpClient(Darwin)
+    val client = HttpClient(Darwin) {
+        install(ContentNegotiation) {
+            json() // Install JSON serialization
+        }
+    }
 
     // Read file data as NSData
     val fileUrl = NSURL.fileURLWithPath(filePath)
