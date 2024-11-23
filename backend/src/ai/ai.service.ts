@@ -36,9 +36,6 @@ class AiService {
     message: string;
     isAI?: boolean;
   }): Promise<any> {
-    console.log('Run AI Pipeline');
-    console.log('User ID: ', userId);
-
     if (isAI) {
       this.messages.push(new AIMessage(message));
     } else {
@@ -62,7 +59,6 @@ class AiService {
 
     const result = await modelWithTools.invoke(this.messages);
 
-    console.log('Result: ', result);
 
     this.messages.push(result);
 
@@ -77,7 +73,6 @@ class AiService {
       this.messages.push(toolMessage);
     }
 
-    console.log('Messages: ', this.messages);
 
     if (result?.tool_calls?.length ?? 0 > 0) {
       return this.runAI({
@@ -86,7 +81,6 @@ class AiService {
         isAI: true,
       });
     } else {
-      console.log(this.messages);
       return result;
     }
   }
