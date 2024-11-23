@@ -1,10 +1,14 @@
 import { model, ObjectId, Schema } from 'mongoose';
+import { Document } from 'mongoose';
+
+
 
 export interface IConversation extends Document {
   userId: ObjectId;
   title: string;
   createdAt: Date;
   files: IConversation[];
+  messages: string[];
 }
 
 export interface IConversationFiles extends Document {
@@ -20,12 +24,12 @@ const ConversationContentSchema = new Schema<IConversationFiles>(
   { _id: false }
 );
 
-
 export const ConversationSchema = new Schema<IConversation>(
   {
     userId: { type: Schema.Types.ObjectId, required: true },
     title: { type: String, required: true },
     files: { type: [ConversationContentSchema], default: [] },
+    messages: { type: [String], default: [] },
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }

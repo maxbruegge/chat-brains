@@ -15,7 +15,7 @@ class ConversationRepository {
     id: string,
     userId: Types.ObjectId
   ): Promise<IConversation | null> {
-    return Conversation.findById(id);
+    return Conversation.findOne({ _id: id, userId });
   }
 
   /**
@@ -26,8 +26,9 @@ class ConversationRepository {
   async getConversationsByUserId(
     userId: Types.ObjectId
   ): Promise<IConversation[]> {
-    return Conversation.find({ userId }, { files: 0 });
+    return Conversation.find({ userId }, { files: 0, messages: 0 });
   }
+
   /**
    * Inserts a new conversation into the database.
    * @param data - The conversation data to insert.
