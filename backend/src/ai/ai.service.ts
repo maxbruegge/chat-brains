@@ -46,9 +46,10 @@ class AiService {
     }
 
     const appendCode = appendCodeTool(userId);
+    const retriever = retrieverTool(userId);
 
     const modelWithTools = getModal().bindTools([
-      retrieverTool,
+      retriever,
       taskDecompositionTool,
       appendCode,
     ]);
@@ -68,7 +69,11 @@ class AiService {
     for (const toolCall of result?.tool_calls ?? []) {
       const selectedTool =
         toolsByName[toolCall?.name as keyof typeof toolsByName];
-      const toolMessage = await selectedTool.invoke(toolCall);
+      const toolInstance =
+        typeof selectedTool === 'function'
+          ? selectedTool(userId)
+          : selectedTool;
+      const toolMessage = await toolInstance.invoke(toolCall);
       this.messages.push(toolMessage);
     }
 
