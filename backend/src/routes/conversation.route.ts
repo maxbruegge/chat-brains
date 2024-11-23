@@ -5,7 +5,8 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.get('/', conversationController.getConversation);
+router.get('/', authMiddleware, conversationController.getConversation);
 router.post('/', authMiddleware, conversationController.createConversation);
+router.post('/:id', authMiddleware, conversationController.addToConversation);
 
 export { router as conversationRoutes };
