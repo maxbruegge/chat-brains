@@ -55,6 +55,15 @@ class UserRepository {
   }
 
   /**
+   * Fetches a user by GitHub API key.
+   * @param githubApiKey - The GitHub API key to search for.
+   * @returns The user object or null if not found.
+   */
+  async getUserByGithubApiKey(githubApiKey: string): Promise<IUser | null> {
+    return User.findOne({ githubApiKey });
+  }
+
+  /**
    * Updates the API key for a user.
    * @param userId - The ID of the user.
    * @param apiKey - The new API key to set.
@@ -74,7 +83,7 @@ class UserRepository {
    * @param userId - The ID of the user.
    * @returns The user's API key.
    */
-  async getApiKey(userId: string): Promise<string | null> {
+  async getApiKey(userId: Types.ObjectId): Promise<string | null> {
     const user = await User.findById(userId);
     return user?.githubApiKey || null;
   }

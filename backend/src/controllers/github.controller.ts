@@ -3,8 +3,6 @@ import { userRepository } from '../repositories/user.repository';
 import { githubAdapter } from '../adapters/github.adapter';
 
 class GitHubController {
-  private apiKey: string | null = null; // Store the GitHub API key in memory
-
   /**
    * Sets the GitHub API key.
    */
@@ -47,24 +45,78 @@ class GitHubController {
   /**
    * Retrieves the stored GitHub API key (for debugging or validation).
    */
-  getApiKey(req: Request, res: Response, next: NextFunction): void {
+  async getApiKey(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-      if (!this.apiKey) {
-        res.status(404).json({ success: false, message: 'API key not set.' });
-        return;
-      }
+      const userId = req.user.id;
+      const key = await userRepository.getApiKey(userId);
 
-      res.status(200).json({ success: true, apiKey: this.apiKey });
+      res.status(200).json({ success: true, apiKey: key });
     } catch (error) {
       next(error); // Pass errors to the global error handler
     }
   }
 
   /**
-   * Middleware to attach the API key to outgoing requests.
+   * Fetches all branches of a repository.
    */
-  getApiKeyForRequest(): string | null {
-    return this.apiKey;
+  async getAllBranches(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { repo } = req.body;
+      const userId = req.user.id;
+
+      const user = await userRepository.getUserById(userId);
+
+      if (!user?.owner || !repo || !user.githubApiKey) {
+        res.status(400).json({
+          success: false,
+          message: 'Please specify "repo", ensure owner and API key are set.',
+        });
+        return;
+      }
+
+      const branches = await githubAdapter.fetchAllBranches(
+        user.owner,
+        repo,
+        user.githubApiKey
+      );
+
+      res.status(200).json({ success: true, branches });
+    } catch (error) {
+      next(error); // Pass errors to the global error handler
+    }
+  }
+
+  /**
+   * Fetches all repositories for the user or organization.
+   */
+  async getAllRepos(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user.id;
+      const user = await userRepository.getUserById(userId);
+
+      if (!user?.owner || !user.githubApiKey) {
+        res.status(400).json({
+          success: false,
+          message: 'Ensure owner and API key are set.',
+        });
+        return;
+      }
+
+      const repos = await githubAdapter.fetchAllRepos(
+        user.owner,
+        user.githubApiKey
+      );
+
+      const resultRepos = repos.map((repo) => repo.name);
+
+      res.status(200).json({ success: true, repos: resultRepos });
+    } catch (error) {
+      next(error); // Pass errors to the global error handler
+    }
   }
 }
 
