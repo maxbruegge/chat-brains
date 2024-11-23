@@ -33,7 +33,7 @@ export const issueRetrieverTool = (userId: Types.ObjectId) =>
       );
 
       if (allIssues.length === 0) {
-        return undefined;
+        return '';
       }
 
       const issues = await getModal()
@@ -50,8 +50,10 @@ export const issueRetrieverTool = (userId: Types.ObjectId) =>
           new HumanMessage(task),
         ]);
 
-      return JSON.stringify(
-        allIssues.find((_, index) => index === issues.issueIndex)
+      return (
+        JSON.stringify(
+          allIssues.find((_, index) => index === issues.issueIndex)
+        ) ?? ''
       );
     },
     {
