@@ -63,7 +63,7 @@ fun App(client: NetworkClient) {
                     isLoading = true
                     errorMessage = null
 
-                    client.login("fuck you", "lol")
+                    client.login("example@jetbrains.de", "password")
                         .onSuccess {
                             errorMessage = null
                         }

@@ -2,14 +2,14 @@ package com.jetbrains.chatbrains.networking
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import util.NetworkError
 import util.Result
 
@@ -18,11 +18,16 @@ class NetworkClient(
 ) {
 
     suspend fun login(email: String, password: String): Result<String, NetworkError> {
+        val requestBody = buildJsonObject {
+            put("email", email)
+            put("password", password)
+        }
         val response = try {
-            httpClient.get(
-                urlString = "https://www.purgomalum.com/service/json"
+            httpClient.post(
+                urlString = "http://localhost:8000/api/user/sign-in"
             ) {
-                parameter("text", email)
+                contentType(ContentType.Application.Json)
+                setBody(requestBody)
             }
         } catch(e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -32,8 +37,12 @@ class NetworkClient(
 
         return when(response.status.value) {
             in 200..299 -> {
-                val censoredText = response.body<CensoredText>()
-                Result.Success(censoredText.result)
+                val signInResponse = response.body<SignInResponse>()
+                if (signInResponse.success) {
+                    Result.Success(signInResponse.token)
+                } else {
+                    Result.Error(NetworkError.UNAUTHORIZED)
+                }
             }
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             409 -> Result.Error(NetworkError.CONFLICT)
