@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { ObjectId } from 'mongoose';
+import { Types } from 'mongoose';
 
 interface AuthenticatedRequest extends Request {
-  user: { email: string; id: ObjectId }; // Extend Request to include user details
+  user: { email: string; id: Types.ObjectId }; // Extend Request to include user details
 }
 
 export const authMiddleware = (

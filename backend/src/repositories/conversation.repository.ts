@@ -1,4 +1,4 @@
-import { Document, ObjectId, Schema, model } from 'mongoose';
+import { Document, ObjectId, Schema, Types, model } from 'mongoose';
 import { IConversation, Conversation } from '../models/conversation';
 
 /**
@@ -17,7 +17,7 @@ export const getConversationById = async (
  */
 export const insertConversation = async (data: {
   title: string;
-  userId: ObjectId;
+  userId: Types.ObjectId;
 }): Promise<IConversation> => {
   const conversation = new Conversation(data);
   return conversation.save();
