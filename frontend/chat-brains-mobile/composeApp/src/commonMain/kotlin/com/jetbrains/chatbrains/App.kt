@@ -73,8 +73,27 @@ fun App(client: NetworkClient) {
                     isLoading = false
                 }
             }) {
-                Text("Send Request")
+                Text("Sign In")
             }
+
+            Button(onClick = {
+                scope.launch {
+                    isLoading = true
+                    errorMessage = null
+
+                    client.conversations()
+                        .onSuccess {
+                            errorMessage = null
+                        }
+                        .onError {
+                            errorMessage = it
+                        }
+                    isLoading = false
+                }
+            }) {
+                Text("Get Conversations")
+            }
+
 
             errorMessage?.let {
                 Text(
@@ -83,6 +102,4 @@ fun App(client: NetworkClient) {
             }
         }
     }
-
-
 }

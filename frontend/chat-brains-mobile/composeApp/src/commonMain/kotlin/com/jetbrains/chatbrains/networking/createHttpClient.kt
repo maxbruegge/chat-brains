@@ -2,6 +2,7 @@ package com.jetbrains.chatbrains.networking
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -22,5 +23,10 @@ fun createHttpClient(engine: HttpClientEngine): HttpClient {
                 }
             )
         }
+        install(DefaultRequest) {
+            // Add Authorization header if token is available
+            headers.append("Authorization", "Bearer ${authToken ?: ""}")
+        }
+
     }
 }
