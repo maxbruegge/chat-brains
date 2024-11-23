@@ -60,13 +60,14 @@ class AiController {
           .map((result: any) => result.alternatives?.[0]?.transcript)
           .join(' ') || 'No transcription available.';
 
-      const result = await aiService.runAI(transcription);
+      const result = await aiService.runAI({
+        message: transcription,
+        userId: req.user.id,
+      });
       res.status(200).json({
         success: true,
         answer: result?.content.toString(),
       });
-
-      res.status(200).json({ success: true, transcription });
     } catch (error) {
       const axiosError = error as AxiosError;
       console.error('Error processing audio:', axiosError.message);
@@ -109,6 +110,29 @@ class AiController {
         })
         .save(outputFilePath); // Save WAV to disk
     });
+  }
+
+  async processText(req: Request, res: Response): Promise<void> {
+    const { message } = req.body;
+
+    try {
+      const result = await aiService.runAI({
+        message: message,
+        userId: req.user.id,
+      });
+      res.status(200).json({
+        success: true,
+        answer: result?.content.toString(),
+      });
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error('Error processing audio:', axiosError.message);
+      res.status(500).json({
+        success: false,
+        message: 'Error processing audio.',
+        error: axiosError.message,
+      });
+    }
   }
 }
 

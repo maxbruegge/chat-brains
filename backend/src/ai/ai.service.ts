@@ -56,7 +56,7 @@ class AiService {
     const toolsByName = {
       retriever: retrieverTool,
       taskDecomposition: taskDecompositionTool,
-      appendCode: appendCodeTool,
+      appendCode: appendCode,
     };
 
     const result = await modelWithTools.invoke(this.messages);

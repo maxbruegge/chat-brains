@@ -12,5 +12,6 @@ router.post(
   uploadMiddleware.single('audio'),
   aiController.processAudio
 );
+router.post('/text', authMiddleware, aiController.processText);
 
 export { router as aiRoutes };
