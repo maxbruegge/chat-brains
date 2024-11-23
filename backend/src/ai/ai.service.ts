@@ -9,7 +9,7 @@ import { taskDecompositionTool } from './taskDecompositionTool';
 import { retrieverTool } from './retrieverTool';
 import { appendCodeTool } from './appendCodeTool';
 
-export class AIService {
+class AiService {
   private messages: (HumanMessage | SystemMessage | ToolMessage | AIMessage)[] =
     [
       new SystemMessage(
@@ -71,3 +71,5 @@ export class AIService {
     }
   }
 }
+
+export const aiService = new AiService();
