@@ -18,6 +18,7 @@ if (!fs.existsSync('uploads')) {
 }
 
 const app = express();
+app.use(bodyParser.json({ limit: '10mb' }));
 
 app.use(bodyParser.json());
 app.use('/api', router);
