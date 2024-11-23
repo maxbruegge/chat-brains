@@ -1,11 +1,12 @@
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
+import { conversationRepository } from '../repositories/conversation.repository';
 
 const appendCodeSchema = z.object({
   changedFiles: z.array(
     z.object({
-      name: z.string().describe('The name of the file.'),
-      newContent: z.string().describe('The content of the file.'),
+      filename: z.string().describe('The name of the file.'),
+      content: z.string().describe('The complete, edited content of the file.'),
     })
   ),
 });
@@ -13,9 +14,14 @@ const appendCodeSchema = z.object({
 export const appendCodeTool = tool(
   async ({ changedFiles }) => {
     console.log('Start: Append Code');
-    // TODO add to the files conversation.
 
-    return 'The code has been saved.';
+    // TODO: @Maxi
+    try {
+      //   conversationRepository.addMessageToConversation(_, changedFiles);
+      //   return 'The code has been saved.';
+    } catch {
+      throw new Error('Changes could not be saved');
+    }
   },
   {
     name: 'appendCode',
