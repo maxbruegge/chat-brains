@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Types } from 'mongoose';
+import { githubAdapter } from '../adapters/github.adapter';
+import { githubController } from '../controllers/github.controller';
 
 interface AuthenticatedRequest extends Request {
   user: { email: string; id: Types.ObjectId }; // Extend Request to include user details

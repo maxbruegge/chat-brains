@@ -190,6 +190,75 @@ class GitHubAdapter {
 
     return fileContents;
   }
+
+  /**
+   * Fetches all branches of a GitHub repository.
+   * @param owner - The repository owner (username or organization).
+   * @param repo - The repository name.
+   * @param token - The GitHub personal access token.
+   * @returns A list of branch names.
+   */
+  async fetchAllBranches(
+    owner: string,
+    repo: string,
+    token: string
+  ): Promise<string[]> {
+    const url = `${GITHUB_API_URL}/repos/${owner}/${repo}/branches`;
+
+    try {
+      const response = await axios.get<{ name: string }[]>(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      });
+
+      // Extract branch names from the response
+      return response.data.map((branch) => branch.name);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(
+          `GitHub API Error (${error.response?.status}): ${
+            error.response?.data?.message || error.message
+          }`
+        );
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Fetches all repositories for a user or organization.
+   * @param owner - The user or organization name.
+   * @param token - The GitHub personal access token.
+   * @returns A list of repositories.
+   */
+  async fetchAllRepos(
+    owner: string,
+    token: string
+  ): Promise<GitHubRepoMetadata[]> {
+    const url = `${GITHUB_API_URL}/users/${owner}/repos`;
+
+    try {
+      const response = await axios.get<GitHubRepoMetadata[]>(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(
+          `GitHub API Error (${error.response?.status}): ${
+            error.response?.data?.message || error.message
+          }`
+        );
+      }
+      throw error;
+    }
+  }
 }
 
 export const githubAdapter = new GitHubAdapter();
