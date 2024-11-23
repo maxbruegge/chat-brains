@@ -49,6 +49,19 @@ fun App(client: NetworkClient) {
                 if (isRecording) {
                     Record.stopRecording().also { savedAudioPath ->
                         println("Recording stopped. File saved at $savedAudioPath")
+                        scope.launch {
+                            isLoading = true
+                            errorMessage = null
+
+                            client.answer(filePath = savedAudioPath)
+                                .onSuccess {
+                                    errorMessage = null
+                                }
+                                .onError {
+                                    errorMessage = it
+                                }
+                            isLoading = false
+                        }
                     }
                 } else {
                     Record.startRecording()
