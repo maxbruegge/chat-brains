@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 
 sealed class Screen {
     object LoginScreen : Screen()
+    object BranchesScreen : Screen()
     object ConversationScreen : Screen()
 }
 
@@ -46,6 +47,10 @@ fun App(client: NetworkClient) {
 
     when (currentScreen) {
         is Screen.LoginScreen -> Login(
+            client = client,
+            onNavigate = { currentScreen = Screen.BranchesScreen }
+        )
+        is Screen.BranchesScreen -> Branches(
             client = client,
             onNavigate = { currentScreen = Screen.ConversationScreen }
         )
