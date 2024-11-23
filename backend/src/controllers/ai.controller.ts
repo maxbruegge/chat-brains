@@ -4,6 +4,7 @@ import axios, { AxiosError } from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { aiService } from '../ai/ai.service';
+import OpenAI from 'openai';
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -70,10 +71,10 @@ class AiController {
       });
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error('Error processing audio:', axiosError.message);
+      console.error('Error processing audio ):', axiosError.message);
       res.status(500).json({
         success: false,
-        message: 'Error processing audio.',
+        message: 'Error processing audio. ):',
         error: axiosError.message,
       });
     }
@@ -120,6 +121,9 @@ class AiController {
         message: message,
         userId: req.user.id,
       });
+
+      await generateAudio(result?.content.toString());
+
       res.status(200).json({
         success: true,
         answer: result?.content.toString(),
@@ -133,6 +137,35 @@ class AiController {
         error: axiosError.message,
       });
     }
+  }
+}
+
+async function generateAudio(aiMessage: string) {
+  try {
+    console.log('Generating audio:', aiMessage);
+    console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    const response = await openai.audio.speech.create({
+      model: 'tts-1',
+      input: aiMessage,
+      voice: 'alloy',
+      speed: 1.3,
+    });
+
+    const audioArrayBuffer = await response.arrayBuffer();
+    const audioBuffer = Buffer.from(audioArrayBuffer);
+
+    const audioFilePath = path.join('', 'output.mp3');
+    fs.writeFileSync(audioFilePath, audioBuffer);
+
+    console.log('Audio file generated at:', audioFilePath);
+    return audioFilePath;
+  } catch (error) {
+    console.error('Error generating audio:', error);
+    throw error;
   }
 }
 
