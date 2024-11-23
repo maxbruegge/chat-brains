@@ -1,6 +1,7 @@
 package com.jetbrains.chatbrains.networking
 
 import com.jetbrains.chatbrains.getFileBytes
+import com.jetbrains.chatbrains.uploadAudioFile
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
@@ -8,6 +9,9 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.request
 import io.ktor.http.ContentDisposition.Companion.File
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
@@ -92,30 +96,19 @@ class NetworkClient(
     }
 
     suspend fun answer(filePath: String): Result<Unit, NetworkError> {
-        val fileBytes: ByteArray
-        try {
-            fileBytes = getFileBytes(filePath)
-        } catch (e: Exception) {
-            return Result.Error(NetworkError.UNKNOWN)
-        }
 
-        val response = try {
-            httpClient.post("http://localhost:8000/api/ai") {
-                contentType(ContentType.MultiPart.FormData) // Set Content-Type as multipart
-                setBody(
-                    MultiPartFormDataContent(
-                        formData {
-                            append("audio", fileBytes, Headers.build {
-                                append(HttpHeaders.ContentType, "video/mp4")
-//                                append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"${file.name}\"")
-                            })
-                        }
-                    )
-                )
-            }
+
+
+        val response: HttpResponse;
+        try {
+            println("CALLLLLLLLLLLLL")
+            response =
+                uploadAudioFile(filePath, "http://localhost:8000/api/ai", authToken ?: "")
+            println(response.bodyAsText())
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: Exception) {
+            println(e.message)
             return Result.Error(NetworkError.UNKNOWN)
         }
 

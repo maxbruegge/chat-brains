@@ -22,11 +22,9 @@ actual fun getFileBytes(filePath: String): ByteArray {
 
 @OptIn(ExperimentalForeignApi::class)
 fun NSData.toByteArray(): ByteArray {
-    return bytes?.let { pointer ->
-        ByteArray(length.toInt()).apply {
-            usePinned { pinned ->
-                memcpy(pinned.addressOf(0), pointer, length)
-            }
+    return ByteArray(this.length.toInt()).apply {
+        usePinned { pinnedBytes ->
+            memcpy(pinnedBytes.addressOf(0), this@toByteArray.bytes, this@toByteArray.length)
         }
-    } ?: ByteArray(0) // Return empty ByteArray if bytes is null
+    }
 }
