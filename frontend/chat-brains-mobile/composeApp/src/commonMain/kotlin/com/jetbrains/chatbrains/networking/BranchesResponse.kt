@@ -3,7 +3,7 @@ package com.jetbrains.chatbrains.networking
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SignInResponse(
+data class BranchesResponse(
     val success: Boolean,
-    val token: String
+    val branches: Array<String>
 )
