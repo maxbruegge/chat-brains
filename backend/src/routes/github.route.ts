@@ -8,5 +8,6 @@ const router = Router();
 router.patch('/', authMiddleware, githubController.setApiKey);
 router.get('/branches', authMiddleware, githubController.getAllBranches);
 router.get('/repos', authMiddleware, githubController.getAllRepos);
+router.get('/issues', authMiddleware, githubController.getAllIssues);
 
 export { router as githubRoutes };

@@ -126,7 +126,7 @@ class AiController {
         userId: req.user.id,
       });
 
-      await generateAudio(result?.content.toString());
+      // await generateAudio(result?.content.toString());
 
       res.status(200).json({
         success: true,
@@ -147,7 +147,6 @@ class AiController {
 async function generateAudio(aiMessage: string) {
   try {
     console.log('Generating audio:', aiMessage);
-    console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
