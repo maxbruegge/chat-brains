@@ -28,91 +28,113 @@ import util.NetworkError
 import util.onError
 import util.onSuccess
 
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+
+
+sealed class Screen {
+    object LoginScreen : Screen()
+    object ConversationScreen : Screen()
+}
+
 @Composable
 @Preview
 fun App(client: NetworkClient) {
-    MaterialTheme {
-        var isRecording by remember { mutableStateOf(false) }
-        var isLoading by remember {
-            mutableStateOf(false)
-        }
-        var errorMessage by remember {
-            mutableStateOf<NetworkError?>(null)
-        }
-        val scope = rememberCoroutineScope()
 
-        Column(Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
-        ) {
-            Button(onClick = {
-                if (isRecording) {
-                    Record.stopRecording().also { savedAudioPath ->
-                        println("Recording stopped. File saved at $savedAudioPath")
-                        scope.launch {
-                            isLoading = true
-                            errorMessage = null
+    var currentScreen by remember { mutableStateOf<Screen>(Screen.LoginScreen) }
 
-                            client.answer(filePath = savedAudioPath)
-                                .onSuccess {
-                                    errorMessage = null
-                                }
-                                .onError {
-                                    errorMessage = it
-                                }
-                            isLoading = false
-                        }
-                    }
-                } else {
-                    Record.startRecording()
-                }
-                isRecording = !isRecording
-            }) {
-                Text(if (isRecording) "Stop Recording" else "Start Recording")
-            }
-
-            Button(onClick = {
-                scope.launch {
-                    isLoading = true
-                    errorMessage = null
-
-                    client.login("example@jetbrains.de", "password")
-                        .onSuccess {
-                            errorMessage = null
-                        }
-                        .onError {
-                            errorMessage = it
-                        }
-                    isLoading = false
-                }
-            }) {
-                Text("Sign In")
-            }
-
-            Button(onClick = {
-                scope.launch {
-                    isLoading = true
-                    errorMessage = null
-
-                    client.conversations()
-                        .onSuccess {
-                            errorMessage = null
-                        }
-                        .onError {
-                            errorMessage = it
-                        }
-                    isLoading = false
-                }
-            }) {
-                Text("Get Conversations")
-            }
-
-
-            errorMessage?.let {
-                Text(
-                    text = it.name
-                )
-            }
-        }
+    when (currentScreen) {
+        is Screen.LoginScreen -> Login(
+            client = client,
+            onNavigate = { currentScreen = Screen.ConversationScreen }
+        )
+        is Screen.ConversationScreen -> Conversation(onNavigate = { currentScreen = Screen.LoginScreen })
     }
+
+
+//    MaterialTheme {
+//        var isRecording by remember { mutableStateOf(false) }
+//        var isLoading by remember {
+//            mutableStateOf(false)
+//        }
+//        var errorMessage by remember {
+//            mutableStateOf<NetworkError?>(null)
+//        }
+//        val scope = rememberCoroutineScope()
+//
+//        Column(Modifier.fillMaxSize(),
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
+//        ) {
+//            Button(onClick = {
+//                if (isRecording) {
+//                    Record.stopRecording().also { savedAudioPath ->
+//                        println("Recording stopped. File saved at $savedAudioPath")
+//                        scope.launch {
+//                            isLoading = true
+//                            errorMessage = null
+//
+//                            client.answer(filePath = savedAudioPath)
+//                                .onSuccess {
+//                                    errorMessage = null
+//                                }
+//                                .onError {
+//                                    errorMessage = it
+//                                }
+//                            isLoading = false
+//                        }
+//                    }
+//                } else {
+//                    Record.startRecording()
+//                }
+//                isRecording = !isRecording
+//            }) {
+//                Text(if (isRecording) "Stop Recording" else "Start Recording")
+//            }
+//
+//            Button(onClick = {
+//                scope.launch {
+//                    isLoading = true
+//                    errorMessage = null
+//
+//                    client.login("example@jetbrains.de", "password")
+//                        .onSuccess {
+//                            errorMessage = null
+//                        }
+//                        .onError {
+//                            errorMessage = it
+//                        }
+//                    isLoading = false
+//                }
+//            }) {
+//                Text("Sign In")
+//            }
+//
+//            Button(onClick = {
+//                scope.launch {
+//                    isLoading = true
+//                    errorMessage = null
+//
+//                    client.conversations()
+//                        .onSuccess {
+//                            errorMessage = null
+//                        }
+//                        .onError {
+//                            errorMessage = it
+//                        }
+//                    isLoading = false
+//                }
+//            }) {
+//                Text("Get Conversations")
+//            }
+//
+//
+//            errorMessage?.let {
+//                Text(
+//                    text = it.name
+//                )
+//            }
+//        }
+//    }
 }

@@ -23,6 +23,8 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import util.NetworkError
 import util.Result
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 var authToken: String? = null
 
@@ -97,14 +99,9 @@ class NetworkClient(
 
     suspend fun answer(filePath: String): Result<Unit, NetworkError> {
 
-
-
         val response: HttpResponse;
         try {
-            println("CALLLLLLLLLLLLL")
-            response =
-                uploadAudioFile(filePath, "http://localhost:8000/api/ai", authToken ?: "")
-            println(response.bodyAsText())
+            response = uploadAudioFile(filePath, "http://localhost:8000/api/ai", authToken ?: "")
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: Exception) {

@@ -17,6 +17,8 @@ import platform.posix.memcpy
 import io.ktor.client.*
 import io.ktor.client.engine.darwin.*
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.statement.*
@@ -36,6 +38,9 @@ actual suspend fun uploadAudioFile(filePath: String, serverUrl: String, authoriz
     val client = HttpClient(Darwin) {
         install(ContentNegotiation) {
             json() // Install JSON serialization
+        }
+        install(Logging) {
+            level = LogLevel.ALL
         }
     }
 
