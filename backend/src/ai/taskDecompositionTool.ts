@@ -9,16 +9,20 @@ const taskDecompositionSchema = z.object({
 
 export const taskDecompositionTool = tool(
   async ({ task }) => {
+    console.log('Start: Task Decomposition');
     return await getModal().invoke([
       new SystemMessage(
-        'Your job is to decompose the task of the user into multiple steps to solve his coding problem. Think conceptually what needs to be done.'
+        `Your job is to decompose the task of the user into small bare minimum steps to solve his coding problem. 
+        The project setup is already done, we just need to implement a feature or fix a bug.
+        Keep the steps like a bullet point list, short and concise.
+        Create a maximum of 3 steps.`
       ),
       new HumanMessage(task),
     ]);
   },
   {
     name: 'taskDecomposition',
-    description: 'Decomposes a task into smaller subtasks.',
+    description: '2. Decomposes a task into smaller subtasks.',
     schema: taskDecompositionSchema,
   }
 );

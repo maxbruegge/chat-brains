@@ -12,6 +12,7 @@ const appendCodeSchema = z.object({
 
 export const appendCodeTool = tool(
   async ({ changedFiles }) => {
+    console.log('Start: Append Code');
     // TODO add to the files conversation.
 
     return 'The code has been saved.';

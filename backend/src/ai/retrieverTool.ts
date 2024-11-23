@@ -1,10 +1,15 @@
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { getModal } from './chatModal';
-import { HumanMessage, SystemMessage } from '@langchain/core/messages';
+import {
+  HumanMessage,
+  SystemMessage,
+  ToolMessage,
+} from '@langchain/core/messages';
+import { allFiles, code } from './mock';
 
 const retrieverSchema = z.object({
-  steps: z.string().describe('The steps to solve the task.'),
+  task: z.string().describe('The task to solve.'),
 });
 
 const responseSchema = z.object({
@@ -14,27 +19,33 @@ const responseSchema = z.object({
 });
 
 export const retrieverTool = tool(
-  async ({ steps }) => {
+  async ({ task }): Promise<string> => {
+    console.log('Start: Retriever');
     const files = await getModal()
       .withStructuredOutput(responseSchema)
       .invoke([
         new SystemMessage(
-          `Your job is to select the files that you think might be needed to solve the steps.
+          `Your job is to select the files that you think might be needed to solve the issue of the user.
           
           Here are all the available files:
+
           ${allFiles.map((file) => `- ${file}`).join('\n')}
           `
         ),
-        new HumanMessage(steps),
+        new HumanMessage(task),
       ]);
 
-    return JSON.stringify(
-      code.filter((file) => files.files.includes(file.name)).join('\n')
-    );
+    const codeFiles = code
+      .filter((file) => files.files.includes(file.name))
+      .map((file) => JSON.stringify(file))
+      .join(',\n');
+
+    return codeFiles.toString();
   },
   {
     name: 'retriever',
-    description: 'Retrieves code files from a list of steps.',
+    description:
+      '1. Retrieves relevant code files from a given issue and user request.',
     schema: retrieverSchema,
   }
 );

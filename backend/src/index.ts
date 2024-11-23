@@ -17,11 +17,11 @@ app.use(bodyParser.json());
 app.use('/api', router);
 app.use(errorHandler);
 
+// TO BE DELETED
+const aiService = new AIService();
 app.get('/ai', async (req, res) => {
   try {
     const { message } = req.body;
-
-    const aiService = new AIService();
     const result = await aiService.runAI(message);
     res.send(result?.content.toString());
   } catch (error) {

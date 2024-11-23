@@ -1,11 +1,9 @@
-const humanMessage = 'develop the modal';
-
 const issue =
   'Develop a modal with the text hello world and a button that says close';
 
 const branchChanges = [''];
 
-const allFiles = [
+export const allFiles = [
   'package.json',
   'src/index.js',
   'src/App.js',
@@ -13,7 +11,7 @@ const allFiles = [
   'src/App.css',
 ];
 
-const code = [
+export const code = [
   {
     name: 'package.json',
     content:

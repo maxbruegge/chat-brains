@@ -13,9 +13,11 @@ export class AIService {
   private messages: (HumanMessage | SystemMessage | ToolMessage | AIMessage)[] =
     [
       new SystemMessage(
-        `You are a conversational chatbot that speak with a user to solve his coding problem. 
-        Use the tools and answer with short and concise messages which are spoken.
-        1. Call the retriever to get relevant files for the query.
+        `You are a conversational chatbot that speaks with the user to solve his coding problem.
+        The user does not see the code, and you should not say the full code, (only insert it into the tools) 
+        but rather explain what you did sololy with the file and function names.
+        Use the tools to get and write code. Speak to the user with just a few words, to get more information.
+        1. Your first step is to call the retriever and get relevant files for the query.
         2. Call taskDecomposition to decompose the task into smaller subtasks.
         3. Discuss the implementation for the 1. step with the user.
         4. Call appendCode to save the code snippet for the step.
@@ -24,24 +26,25 @@ export class AIService {
       ),
     ];
 
-  async runAI(message: string, isAI: boolean = false) {
+  async runAI(message: string, isAI: boolean = false): Promise<any> {
+    console.log('Run AI Pipeline');
+    debugger;
+
     if (isAI) {
       this.messages.push(new AIMessage(message));
     } else {
       this.messages.push(new HumanMessage(message));
     }
 
-    console.log('Messages: ', this.messages);
-
     const modelWithTools = getModal().bindTools([
-      taskDecompositionTool,
       retrieverTool,
+      taskDecompositionTool,
       appendCodeTool,
     ]);
 
     const toolsByName = {
-      taskDecomposition: taskDecompositionTool,
       retriever: retrieverTool,
+      taskDecomposition: taskDecompositionTool,
       appendCode: appendCodeTool,
     };
 
@@ -58,9 +61,12 @@ export class AIService {
       this.messages.push(toolMessage);
     }
 
+    console.log('Messages: ', this.messages);
+
     if (result?.tool_calls?.length ?? 0 > 0) {
-      this.runAI(result.content.toString(), true);
+      return this.runAI(result.content.toString(), true);
     } else {
+      console.log(this.messages);
       return result;
     }
   }
