@@ -62,12 +62,14 @@ class AiController {
         response.data.results
           .map((result: any) => result.alternatives?.[0]?.transcript)
           .join(' ') || 'No transcription available.';
-
+      console.log('Transcription:', transcription);
       // Process transcription with AI service
       const result = await aiService.runAI({
         message: transcription,
         userId: req.user.id,
       });
+
+      console.log('AI response:', result?.content.toString());
 
       const file = await generateAudio(result?.content.toString());
 
@@ -76,12 +78,7 @@ class AiController {
         answer: result?.content.toString(),
         file: file,
       });
-
-      res.status(200).json({
-        success: true,
-        answer: result?.content.toString(),
-        file,
-      });
+      return
     } catch (error) {
       const axiosError = error as AxiosError;
       console.error('Error processing audio ):', axiosError.message);
@@ -142,13 +139,14 @@ class AiController {
         file: file,
       });
     } catch (error) {
-      const axiosError = error as AxiosError;
-      console.error('Error processing audio:', axiosError.message);
+      if (error instanceof AxiosError) {
+      console.error('Error processing audio:', error.message);
       res.status(500).json({
         success: false,
         message: 'Error processing audio.',
-        error: axiosError.message,
+        error: error.message,
       });
+    }
     }
   }
 }
