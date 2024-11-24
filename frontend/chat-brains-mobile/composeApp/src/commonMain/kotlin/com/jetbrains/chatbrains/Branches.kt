@@ -9,11 +9,14 @@ import com.jetbrains.chatbrains.networking.NetworkClient
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.*
 import util.NetworkError
 import util.onError
@@ -50,11 +53,16 @@ fun Branches(client: NetworkClient, onNavigate: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFF1E1F22)) // Set the background color
             .padding(16.dp)
     ) {
         Text(
-            "Branches",
-            style = MaterialTheme.typography.h4,
+            "SELECT BRANCH",
+            style = MaterialTheme.typography.h4.copy(
+                fontSize = 14.sp, // Set font size to 14sp
+                fontWeight = FontWeight.Bold, // Set font weight to bold
+                color = Color.White // Set text color to white
+            ),
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
@@ -88,8 +96,16 @@ fun Branches(client: NetworkClient, onNavigate: () -> Unit) {
 
         Button(
             onClick = onNavigate,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = selectedBranch != null // Enable only if a branch is selected
+//            enabled = selectedBranch != null, // Enable only if a branch is selected
+            modifier = Modifier
+                .height(64.dp)
+                .fillMaxWidth() // Make the button span the full width
+                .padding(top = 16.dp), // Add padding above the button
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFF377287), // Custom background color
+                contentColor = Color.White // Text color inside the button
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text("Select Branch")
         }
@@ -103,14 +119,15 @@ fun BranchItem(branch: String, isSelected: Boolean, onSelect: () -> Unit) {
             .fillMaxWidth()
             .padding(8.dp)
             .clickable { onSelect() }
-            .background(if (isSelected) Color.LightGray else Color.Transparent)
+            .background(Color(0xFF2B2D30))
+            .background(if (isSelected) Color(0xFF377287) else Color(0xFF2B2D30))
             .padding(16.dp),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
         Text(
             text = branch,
             style = MaterialTheme.typography.body1,
-            color = if (isSelected) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
+            color = Color.White,
         )
     }
 }

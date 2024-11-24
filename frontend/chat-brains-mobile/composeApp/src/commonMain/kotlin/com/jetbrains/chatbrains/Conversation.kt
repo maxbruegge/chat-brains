@@ -1,10 +1,16 @@
 package com.jetbrains.chatbrains
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +21,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.jetbrains.chatbrains.networking.NetworkClient
 import dev.theolm.record.Record
@@ -34,10 +42,13 @@ fun Conversation(client: NetworkClient, onNavigate: () -> Unit) {
         val scope = rememberCoroutineScope()
 
         Column(
-            Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF1E1F22)), // Set the background color
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom)
         ) {
+
             // Start/Stop Recording Button
             Button(onClick = {
                 if (isRecording) {
@@ -50,7 +61,7 @@ fun Conversation(client: NetworkClient, onNavigate: () -> Unit) {
                             client.answer(filePath = savedAudioPath)
                                 .onSuccess { response ->
                                     errorMessage = null
-                                    responses = responses + response // Add the response to the list
+                                    responses = responses + response
                                 }
                                 .onError {
                                     errorMessage = it
@@ -62,13 +73,23 @@ fun Conversation(client: NetworkClient, onNavigate: () -> Unit) {
                     Record.startRecording()
                 }
                 isRecording = !isRecording
-            }) {
+            },
+                modifier = Modifier
+                    .fillMaxWidth() // Full width
+                    .height(64.dp) // Set desired height
+                    .clip(RoundedCornerShape(16.dp)), // Rounded corners
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF377287), // Custom background color
+                    contentColor = Color.White // Text color
+                )) {
                 Text(if (isRecording) "Stop Recording" else "Start Recording")
             }
 
             // Loading Indicator
             if (isLoading) {
-                Text("Processing...", style = MaterialTheme.typography.body1)
+                Text("Processing...",
+                    style = MaterialTheme.typography.body1,
+                    color = Color.White)
             }
 
             // Error Message
@@ -81,15 +102,29 @@ fun Conversation(client: NetworkClient, onNavigate: () -> Unit) {
 
             // Display the list of responses
             Column(
-                Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(16.dp)) // Apply rounded corners
+                    .background(Color.Transparent),
                 verticalArrangement = Arrangement.Top
             ) {
                 responses.forEach { response ->
-                    Text(
-                        text = response,
-                        style = MaterialTheme.typography.body1,
-                        modifier = Modifier.padding(8.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth() // Make each background span the full width
+                            .padding(4.dp) // Add padding between items
+                            .clip(RoundedCornerShape(8.dp)) // Rounded corners for each background
+                            .background(Color(0xFF2B2D30)) // Background color for each response
+                    ) {
+                        Text(
+                            text = response,
+                            style = MaterialTheme.typography.body1.copy(
+                                color = Color.White // Text color for contrast
+                            ),
+                            modifier = Modifier.padding(8.dp) // Padding inside each background
+                        )
+                    }
+
                 }
             }
         }

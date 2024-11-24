@@ -1,6 +1,7 @@
 package com.jetbrains.chatbrains.networking
 
 import com.jetbrains.chatbrains.getFileBytes
+import com.jetbrains.chatbrains.playAudio
 import com.jetbrains.chatbrains.uploadAudioFile
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -116,6 +117,7 @@ class NetworkClient(
                     // Parse JSON and extract the "answer" property
                     val responseBody = response.bodyAsText()
                     val answerResponse = Json.decodeFromString<AnswerResponse>(responseBody)
+                    playAudio(answerResponse.file)
                     Result.Success(answerResponse.answer)
                 } catch (e: Exception) {
                     Result.Error(NetworkError.UNKNOWN)

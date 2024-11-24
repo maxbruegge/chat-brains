@@ -1,6 +1,8 @@
 package com.jetbrains.chatbrains
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -30,16 +32,33 @@ fun Login(client: NetworkClient, onNavigate: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFF1E1F22))
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center
+    verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Login", style = MaterialTheme.typography.h4, modifier = Modifier.padding(bottom = 16.dp))
-
         // Username TextField
         TextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Username") },
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = Color.White,
+                backgroundColor = Color(0xFF2B2D30), // Custom background
+                cursorColor = Color(0xFF377287),
+                focusedIndicatorColor = Color.Transparent, // Underline color when focused
+                unfocusedIndicatorColor = Color.Transparent, // Underline color when unfocused
+                disabledIndicatorColor = Color.DarkGray, // Underline when disabled
+                errorIndicatorColor = Color.Red, // Underline when there's an error
+                leadingIconColor = Color(0xFF377287), // Leading icon color
+                trailingIconColor = Color(0xFF377287), // Trailing icon color
+                focusedLabelColor = Color(0xFF377287), // Label color when focused
+                unfocusedLabelColor = Color.LightGray, // Label color when unfocused
+                disabledLabelColor = Color.Gray, // Label color when disabled
+                errorLabelColor = Color.Red, // Label color in error state
+                placeholderColor = Color.White.copy(alpha = 0.5f), // Placeholder text color
+                disabledPlaceholderColor = Color.Gray // Placeholder text when disabled
+            ),
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -51,6 +70,24 @@ fun Login(client: NetworkClient, onNavigate: () -> Unit) {
             onValueChange = { password = it },
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = Color.White,
+                backgroundColor = Color(0xFF2B2D30), // Custom background
+                cursorColor = Color(0xFF377287),
+                focusedIndicatorColor = Color.Transparent, // Underline color when focused
+                unfocusedIndicatorColor = Color.Transparent, // Underline color when unfocused
+                disabledIndicatorColor = Color.DarkGray, // Underline when disabled
+                errorIndicatorColor = Color.Red, // Underline when there's an error
+                leadingIconColor = Color(0xFF377287), // Leading icon color
+                trailingIconColor = Color(0xFF377287), // Trailing icon color
+                focusedLabelColor = Color(0xFF377287), // Label color when focused
+                unfocusedLabelColor = Color.LightGray, // Label color when unfocused
+                disabledLabelColor = Color.Gray, // Label color when disabled
+                errorLabelColor = Color.Red, // Label color in error state
+                placeholderColor = Color.White.copy(alpha = 0.5f), // Placeholder text color
+                disabledPlaceholderColor = Color.Gray // Placeholder text when disabled
+            ),
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -79,7 +116,17 @@ fun Login(client: NetworkClient, onNavigate: () -> Unit) {
                         }
                     isLoading = false
                 }
-            }
+            },
+            modifier = Modifier
+                .height(64.dp)
+                .fillMaxWidth() // Make the button span the full width
+                .padding(top = 16.dp), // Add padding above the button
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFF377287), // Custom background color
+                contentColor = Color.White // Text color inside the button
+            ),
+            shape = RoundedCornerShape(12.dp)
+
         ) {
             Text("Login")
         }
