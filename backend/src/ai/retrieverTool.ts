@@ -52,7 +52,7 @@ export const retrieverTool = (userId: Types.ObjectId) =>
         files.files
       );
 
-      return fullFiles.toString();
+      return JSON.stringify(fullFiles) ?? fullFiles.toString() ?? '';
     },
     {
       name: 'retriever',

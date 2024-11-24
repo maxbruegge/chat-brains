@@ -40,21 +40,17 @@ class AiService {
     message: string;
     isAI?: boolean;
   }): Promise<any> {
-    console.log('runAI called with:', { userId, message, isAI });
 
     if (isAI) {
       this.messages.push(new AIMessage(message));
-      console.log('Added AIMessage:', message);
     } else {
       this.messages.push(new HumanMessage(message));
-      console.log('Added HumanMessage:', message);
     }
 
     const appendCode = appendCodeTool(userId);
     const retriever = retrieverTool(userId);
     const issueRetriever = issueRetrieverTool(userId);
 
-    console.log('Tools initialized:', { appendCode, retriever, issueRetriever });
 
     const modelWithTools = getModal().bindTools([
       retriever,
@@ -63,7 +59,6 @@ class AiService {
       issueRetriever,
     ]);
 
-    console.log('Model with tools bound');
 
     const toolsByName = {
       retriever: retrieverTool,
@@ -73,13 +68,10 @@ class AiService {
     };
 
     const result = await modelWithTools.invoke(this.messages);
-    console.log('Model invoked, result:', result);
 
     this.messages.push(result);
-    console.log('Added result to messages:', result);
 
     for (const toolCall of result?.tool_calls ?? []) {
-      console.log('Processing tool call:', toolCall);
       const selectedTool =
         toolsByName[toolCall?.name as keyof typeof toolsByName];
       const toolInstance =
@@ -87,19 +79,16 @@ class AiService {
           ? selectedTool(userId)
           : selectedTool;
       const toolMessage = await toolInstance.invoke(toolCall);
-      console.log('Tool message received:', toolMessage);
       this.messages.push(toolMessage);
     }
 
     if (result?.tool_calls?.length ?? 0 > 0) {
-      console.log('Re-invoking runAI with AI message');
       return this.runAI({
         message: result.content.toString(),
         userId,
         isAI: true,
       });
     } else {
-      console.log('Final result:', result);
       return result;
     }
   }
