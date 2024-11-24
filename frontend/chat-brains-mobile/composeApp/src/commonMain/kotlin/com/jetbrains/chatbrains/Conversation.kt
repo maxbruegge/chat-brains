@@ -41,92 +41,101 @@ fun Conversation(client: NetworkClient, onNavigate: () -> Unit) {
 
         val scope = rememberCoroutineScope()
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF1E1F22)), // Set the background color
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom)
+                .background(Color(0xFF1E1F22)) // Set the background color
         ) {
-
-            // Start/Stop Recording Button
-            Button(onClick = {
-                if (isRecording) {
-                    Record.stopRecording().also { savedAudioPath ->
-                        println("Recording stopped. File saved at $savedAudioPath")
-                        scope.launch {
-                            isLoading = true
-                            errorMessage = null
-
-                            client.answer(filePath = savedAudioPath)
-                                .onSuccess { response ->
-                                    errorMessage = null
-                                    responses = responses + response
-                                }
-                                .onError {
-                                    errorMessage = it
-                                }
-                            isLoading = false
-                        }
-                    }
-                } else {
-                    Record.startRecording()
-                }
-                isRecording = !isRecording
-            },
-                modifier = Modifier
-                    .fillMaxWidth() // Full width
-                    .height(64.dp) // Set desired height
-                    .clip(RoundedCornerShape(16.dp)), // Rounded corners
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF377287), // Custom background color
-                    contentColor = Color.White // Text color
-                )) {
-                Text(if (isRecording) "Stop Recording" else "Start Recording")
-            }
-
-            // Loading Indicator
-            if (isLoading) {
-                Text("Processing...",
-                    style = MaterialTheme.typography.body1,
-                    color = Color.White)
-            }
-
-            // Error Message
-            errorMessage?.let {
-                Text(
-                    text = it.name,
-                    color = MaterialTheme.colors.error
-                )
-            }
-
-            // Display the list of responses
+            // Content Column (Responses, Errors, Loading)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(16.dp)) // Apply rounded corners
-                    .background(Color.Transparent),
-                verticalArrangement = Arrangement.Top
+                    .padding(bottom = 96.dp), // Reserve space for the button (ensure enough height)
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Loading Indicator
+                if (isLoading) {
+                    Text(
+                        "Processing...",
+                        style = MaterialTheme.typography.body1,
+                        color = Color.White
+                    )
+                }
+
+                // Error Message
+                errorMessage?.let {
+                    Text(
+                        text = it.name,
+                        color = MaterialTheme.colors.error
+                    )
+                }
+
+                // Display the list of responses
                 responses.forEach { response ->
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth() // Make each background span the full width
-                            .padding(4.dp) // Add padding between items
-                            .clip(RoundedCornerShape(8.dp)) // Rounded corners for each background
-                            .background(Color(0xFF2B2D30)) // Background color for each response
+                            .fillMaxWidth()
+                            .padding(4.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF2B2D30))
                     ) {
                         Text(
                             text = response,
                             style = MaterialTheme.typography.body1.copy(
-                                color = Color.White // Text color for contrast
+                                color = Color.White
                             ),
-                            modifier = Modifier.padding(8.dp) // Padding inside each background
+                            modifier = Modifier.padding(8.dp)
                         )
                     }
+                }
+            }
 
+            // Recording Button at the Bottom
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+            ) {
+                Button(
+                    onClick = {
+                        if (isRecording) {
+                            Record.stopRecording().also { savedAudioPath ->
+                                println("Recording stopped. File saved at $savedAudioPath")
+                                scope.launch {
+                                    isLoading = true
+                                    errorMessage = null
+
+                                    client.answer(filePath = savedAudioPath)
+                                        .onSuccess { response ->
+                                            errorMessage = null
+                                            responses = responses + response
+                                        }
+                                        .onError {
+                                            errorMessage = it
+                                        }
+                                    isLoading = false
+                                }
+                            }
+                        } else {
+                            Record.startRecording()
+                        }
+                        isRecording = !isRecording
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp) // Ensure button height is fixed
+                        .clip(RoundedCornerShape(16.dp)), // Rounded corners
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color(0xFF377287), // Custom background color
+                        contentColor = Color.White // Text color
+                    )
+                ) {
+                    Text(if (isRecording) "Stop Recording" else "Start Recording")
                 }
             }
         }
     }
 }
+

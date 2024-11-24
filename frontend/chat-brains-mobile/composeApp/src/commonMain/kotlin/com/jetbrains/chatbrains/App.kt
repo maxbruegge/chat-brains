@@ -2,10 +2,16 @@ package com.jetbrains.chatbrains
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -46,104 +52,31 @@ fun App(client: NetworkClient) {
 
     var currentScreen by remember { mutableStateOf<Screen>(Screen.LoginScreen) }
 
-    when (currentScreen) {
-        is Screen.LoginScreen -> Login(
-            client = client,
-            onNavigate = { currentScreen = Screen.BranchesScreen }
-        )
-        is Screen.BranchesScreen -> Branches(
-            client = client,
-            onNavigate = { currentScreen = Screen.ConversationScreen }
-        )
-        is Screen.ConversationScreen -> Conversation(
-            client = client,
-            onNavigate = {  }
-        )
+    Box(
+        modifier = Modifier
+            .fillMaxSize() // Ensures the background covers the entire screen
+            .background(Color(0xFF1E1F22)) // Replace with your desired color
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(WindowInsets.systemBars.asPaddingValues()) // Adjust content for safe area
+        ) {
+            when (currentScreen) {
+                is Screen.LoginScreen -> Login(
+                    client = client,
+                    onNavigate = { currentScreen = Screen.BranchesScreen }
+                )
+                is Screen.BranchesScreen -> Branches(
+                    client = client,
+                    onNavigate = { currentScreen = Screen.ConversationScreen }
+                )
+                is Screen.ConversationScreen -> Conversation(
+                    client = client,
+                    onNavigate = { }
+                )
+            }
+        }
     }
 
-
-//    MaterialTheme {
-//        var isRecording by remember { mutableStateOf(false) }
-//        var isLoading by remember {
-//            mutableStateOf(false)
-//        }
-//        var errorMessage by remember {
-//            mutableStateOf<NetworkError?>(null)
-//        }
-//        val scope = rememberCoroutineScope()
-//
-//        Column(Modifier.fillMaxSize(),
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
-//        ) {
-//            Button(onClick = {
-//                if (isRecording) {
-//                    Record.stopRecording().also { savedAudioPath ->
-//                        println("Recording stopped. File saved at $savedAudioPath")
-//                        scope.launch {
-//                            isLoading = true
-//                            errorMessage = null
-//
-//                            client.answer(filePath = savedAudioPath)
-//                                .onSuccess {
-//                                    errorMessage = null
-//                                }
-//                                .onError {
-//                                    errorMessage = it
-//                                }
-//                            isLoading = false
-//                        }
-//                    }
-//                } else {
-//                    Record.startRecording()
-//                }
-//                isRecording = !isRecording
-//            }) {
-//                Text(if (isRecording) "Stop Recording" else "Start Recording")
-//            }
-//
-//            Button(onClick = {
-//                scope.launch {
-//                    isLoading = true
-//                    errorMessage = null
-//
-//                    client.login("example@jetbrains.de", "password")
-//                        .onSuccess {
-//                            errorMessage = null
-//                        }
-//                        .onError {
-//                            errorMessage = it
-//                        }
-//                    isLoading = false
-//                }
-//            }) {
-//                Text("Sign In")
-//            }
-//
-//            Button(onClick = {
-//                scope.launch {
-//                    isLoading = true
-//                    errorMessage = null
-//
-//                    client.conversations()
-//                        .onSuccess {
-//                            errorMessage = null
-//                        }
-//                        .onError {
-//                            errorMessage = it
-//                        }
-//                    isLoading = false
-//                }
-//            }) {
-//                Text("Get Conversations")
-//            }
-//
-//
-//            errorMessage?.let {
-//                Text(
-//                    text = it.name
-//                )
-//            }
-//        }
-//    }
 }

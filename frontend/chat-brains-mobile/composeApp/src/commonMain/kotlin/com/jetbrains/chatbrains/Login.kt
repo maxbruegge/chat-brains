@@ -57,7 +57,7 @@ fun Login(client: NetworkClient, onNavigate: () -> Unit) {
         TextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Username") },
+            label = { Text("Email") },
             colors = TextFieldDefaults.textFieldColors(
                 textColor = Color.White,
                 backgroundColor = Color(0xFF2B2D30), // Custom background
