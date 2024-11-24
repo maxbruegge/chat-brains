@@ -1,16 +1,24 @@
 package com.jetbrains.chatbrains
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.R
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import chat_brains_mobile.composeapp.generated.resources.Res
+import chat_brains_mobile.composeapp.generated.resources.chat_brains_logo
+import chat_brains_mobile.composeapp.generated.resources.chat_brains_logo_2
 import com.jetbrains.chatbrains.networking.NetworkClient
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 import util.NetworkError
 import util.onError
 import util.onSuccess
@@ -34,8 +42,17 @@ fun Login(client: NetworkClient, onNavigate: () -> Unit) {
             .fillMaxSize()
             .background(Color(0xFF1E1F22))
             .padding(16.dp),
-    verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(
+            painter = painterResource(Res.drawable.chat_brains_logo_2),
+            contentDescription = null,
+            modifier = Modifier
+                .size(100.dp)
+                .padding(bottom = 32.dp)
+
+        )
         // Username TextField
         TextField(
             value = email,
